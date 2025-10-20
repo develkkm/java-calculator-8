@@ -8,6 +8,7 @@ public class Delimiters {
     private static final Pattern CUSTOM_PATTERN = Pattern.compile("^//(.+)\\\\n(.*)$");
     private static final int CUSTOM_DELIMITER_PART = 1;
     private static final int NUMBER_PART = 2;
+    private static final int CUSTOM_DELIMITER_MAX_LENGTH = 1;
 
     public Delimiters() {
     }
@@ -35,7 +36,7 @@ public class Delimiters {
     }
 
     private void validateLength(String customSeparator) {
-        if (customSeparator.length() != 1) {
+        if (customSeparator.length() != CUSTOM_DELIMITER_MAX_LENGTH) {
             throw new IllegalArgumentException();
         }
     }
