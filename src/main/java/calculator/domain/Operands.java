@@ -1,20 +1,29 @@
 package calculator.domain;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
 
 public class Operands {
 
-    public Operands() {
+    private final BigDecimal[] numbers;
+
+    public Operands(String[] rawNumbers) {
+        numbers = parseToBigDecimal(rawNumbers);
     }
 
-    public BigDecimal[] parseToBigDecimal(String[] rawNumbers) {
+    public BigDecimal sum() {
+        return Arrays.stream(numbers)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+    private BigDecimal[] parseToBigDecimal(String[] rawNumbers) {
         BigDecimal[] numbers = new BigDecimal[rawNumbers.length];
 
         for (int idx = 0; idx < rawNumbers.length; idx++) {
             String rawNumber = rawNumbers[idx];
             validateOperand(rawNumber);
 
-            BigDecimal number = new BigDecimal(rawNumber.trim());
+            BigDecimal number = new BigDecimal(rawNumber);
             validateNumber(number);
 
             numbers[idx] = number;
