@@ -10,22 +10,33 @@ public class Delimiters {
     private static final int NUMBER_PART = 2;
     private static final int CUSTOM_DELIMITER_MAX_LENGTH = 1;
 
-    public Delimiters() {
+    private final String customDelimiterLine;
+    private final String numberLine;
+
+    public Delimiters(String inputValue) {
+        InputFormat inputFormat = splitCustomAndNumberLine(inputValue);
+        this.customDelimiterLine = inputFormat.customDelimiterLine;
+        this.numberLine = inputFormat.numberLine;
+        validateDelimiter(customDelimiterLine);
     }
 
-    public String[] extractRawNumbers(String inputValue) {
+    private InputFormat splitCustomAndNumberLine(String inputValue) {
         Matcher m = CUSTOM_PATTERN.matcher(inputValue);
 
         if (m.matches()) {
-            String rawCustomDelimiter = m.group(CUSTOM_DELIMITER_PART);
-            String rawNumberLine = m.group(NUMBER_PART);
-
-            validateDelimiter(rawCustomDelimiter);
-            String splitRegex = DEFAULT_DELIMITERS + "|" + Pattern.quote(rawCustomDelimiter);
-            return rawNumberLine.split(splitRegex, -1);
+            return new InputFormat(m.group(CUSTOM_DELIMITER_PART), m.group(NUMBER_PART));
         }
 
-        return inputValue.split(DEFAULT_DELIMITERS, -1);
+        return new InputFormat("", inputValue);
+    }
+
+    public String[] extractRawNumbers() {
+        if (!customDelimiterLine.isEmpty()) {
+            String splitRegex = DEFAULT_DELIMITERS + "|" + Pattern.quote(customDelimiterLine);
+            return numberLine.split(splitRegex, -1);
+        }
+
+        return numberLine.split(DEFAULT_DELIMITERS, -1);
     }
 
     private void validateDelimiter(String customDelimiter) {
@@ -35,8 +46,8 @@ public class Delimiters {
         validateNumericSymbol(customDelimiter);
     }
 
-    private void validateLength(String customSeparator) {
-        if (customSeparator.length() != CUSTOM_DELIMITER_MAX_LENGTH) {
+    private void validateLength(String customDelimiter) {
+        if (customDelimiter.length() > CUSTOM_DELIMITER_MAX_LENGTH) {
             throw new IllegalArgumentException();
         }
     }
@@ -57,5 +68,8 @@ public class Delimiters {
         if (customDelimiter.matches("[.\\-]")) {
             throw new IllegalArgumentException("커스텀 구분자로 숫자 표기에 사용되는 문자는 사용할 수 없습니다: " + customDelimiter);
         }
+    }
+
+    private record InputFormat(String customDelimiterLine, String numberLine) {
     }
 }
